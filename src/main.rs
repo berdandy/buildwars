@@ -189,12 +189,12 @@ impl ArmoryMarkup for Equip {
 			(Some(Slot::Ring2), Some(s), _)			=> Some(format!("- Ring 2: {}", s.to_markup()?)),
 			(Some(Slot::Amulet), Some(s), _)		=> Some(format!("- Amulet: {}", s.to_markup()?)),
 
-			(Some(Slot::Coat), Some(s), Some(u))		=> Some(format!("- Coat {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Boots), Some(s), Some(u))		=> Some(format!("- Boots {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Gloves), Some(s), Some(u))		=> Some(format!("- Gloves {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Helm), Some(s), Some(u))		=> Some(format!("- Helm {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Leggings), Some(s), Some(u))	=> Some(format!("- Leggings {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Shoulders), Some(s), Some(u))	=> Some(format!("- Shoulders {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Helm), Some(s), Some(u))		=> Some(format!("- {} Helm, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Shoulders), Some(s), Some(u))	=> Some(format!("- {} Shoulders, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Coat), Some(s), Some(u))		=> Some(format!("- {} Coat, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Gloves), Some(s), Some(u))		=> Some(format!("- {} Gloves, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Leggings), Some(s), Some(u))	=> Some(format!("- {} Leggings, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Boots), Some(s), Some(u))		=> Some(format!("- {} Boots, {}", s.to_markup()?, u.to_markup()?)),
 
 			(Some(Slot::WeaponA1), Some(s), Some(u))	=> Some(format!("- Weapon A1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
 			(Some(Slot::WeaponA2), Some(s), Some(u))	=> Some(format!("- Weapon A2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
@@ -202,17 +202,25 @@ impl ArmoryMarkup for Equip {
 			(Some(Slot::WeaponB2), Some(s), Some(u))	=> Some(format!("- Weapon B2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
 
 			(Some(Slot::Relic), _, _)		=> Some(format!("- Relic: {}", self.id.to_markup()?)),
-			(_,_,_) => None,
-			// (_,_,_) => Some(format!("!!! UNKNOWN {:?}\n", self)),
+
+			(Some(Slot::HelmAquatic),_,_) => None,
+			(Some(Slot::WeaponAquaticA),_,_) => None,
+			(Some(Slot::WeaponAquaticB),_,_) => None,
+
+			(Some(slot), _, Some(u))		=> Some(format!("- Unknown {:?}, {}", slot, u.to_markup()?)),
+			(Some(slot),_,_)				=> Some(format!("- Unknown {:?}", slot)),
+			(None,_,_) => None,
 		}?)
 	}
 }
 
 fn create_page(c: &Character) -> Option<String> {
-	let buildidx = c.active_build_tab.unwrap_or(1);
+	let buildidx = c.active_build_tab?;
 	let build = &c.build_tabs[buildidx-1].build;
-	let gearidx = c.active_equipment_tab.unwrap_or(1);
+
+	let gearidx = c.active_equipment_tab?;
 	let gear = &c.equipment_tabs[gearidx-1].equipment;
+
 	Some(format!(concat!(
 			"---\n",
 			"layout: build\n",
