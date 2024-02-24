@@ -214,12 +214,17 @@ impl ArmoryMarkup for Equip {
 	}
 }
 
-fn create_page(c: &Character) -> Option<String> {
-	let buildidx = c.active_build_tab?;
-	let build = &c.build_tabs[buildidx-1].build;
+fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Option<String> {
 
-	let gearidx = c.active_equipment_tab?;
+	if c.core.profession == Profession::Revenant {
+		todo!("Revenant legend support");
+	}
+
+	let gearidx = gear_arg.parse::<usize>().unwrap_or(c.active_equipment_tab.unwrap());
+	let buildidx = build_arg.parse::<usize>().unwrap_or(c.active_build_tab.unwrap());
+
 	let gear = &c.equipment_tabs[gearidx-1].equipment;
+	let build = &c.build_tabs[buildidx-1].build;
 
 	Some(format!(concat!(
 			"---\n",
@@ -255,28 +260,53 @@ fn create_page(c: &Character) -> Option<String> {
 	))
 }
 
+fn print_available_characters(key: &String) {
+	let client = Client::default().api_key(key);
+	client.ids::<Character, CharacterId>().unwrap()
+		.into_iter()
+		.for_each(|name| println!("- {name}"));
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        println!("Usage: {} <api-key> <character name>", args[0]);
+    if args.len() < 1 || args.len() > 5 || args[1] == "-h" || args[1] == "--help" {
+        println!("Usage: {} <api-key> [<character-name> [<equipment-tab> <build-tab>]]", args[0]);
+		println!("  extract an equipment and build tab into website format (currently AW2/Armory only)");
+		println!("  if only api-key is provided, displays a list of characters");
+		println!("  if only api-key and character-name are specified, display a numbered list of equipment and build tabs");
+		println!("  if equipment-tab and build-tab is 'x', display current equipment/build");
         process::exit(1);
     }
 
-    let key = &args[1];
-	let id = CharacterId::from(&args[2]);
+	let key = &args[1];
+	if args.len() == 2 {
+		print_available_characters(key);
 
-	let client = Client::default().api_key(key);
+	} else if args.len() >= 3 {
+		let id = CharacterId::from(&args[2]);
+		let client = Client::default().api_key(key);
+		if let Ok(c) = client.single::<Character, CharacterId>(id.clone()) {
 
-	if let Ok(c) = client.single::<Character, CharacterId>(id.clone()) {
-		println!("{}", create_page(&c).unwrap_or(String::from("invalid build")));
-	} else {
-		println!("Character {id} not found. Available characters:");
-		let names: Vec<CharacterId> = client.ids::<Character, CharacterId>().unwrap();
-		for name in names {
-			println!("- {name}");
+			if args.len() < 4 {
+				// only list equipment/build tabs
+				println!("{} - {:?} {:?} {:?}\n\nEquipment Tabs:", id, c.core.gender, c.core.race, c.core.profession, );
+				for (i, tab) in c.equipment_tabs.iter().enumerate() {
+					println!("{}: {}", i+1, tab.name);
+				}
+				println!("\nBuild Tabs:");
+				for (i, tab) in c.build_tabs.clone().into_iter().enumerate() {
+					println!("{}: {}", i+1, tab.build.name.unwrap_or(String::from("-unnamed-")));
+				}
+			} else {
+				// indices given
+				println!("{}", create_page(&c, &args[3], &args[4]).unwrap_or(String::from("invalid build")));
+			}
+
+		} else {
+			eprintln!("Character {id} not found. Available characters:");
+			print_available_characters(key);
 		}
 	}
-
     Ok(())
 }
 
