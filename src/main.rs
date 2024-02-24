@@ -324,15 +324,6 @@ mod tests {
 
 	#[test]
 	#[ignore]
-	fn get_equipment() { 
-		/// #TODO
-		let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
-		let id = CharacterId::from("Johnny Vicious");
-		let c: Character = client.single(id).unwrap();
-	}
-
-	#[test]
-	#[ignore]
 	fn get_known_character() { 
 		// relatively expensive
 		let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
