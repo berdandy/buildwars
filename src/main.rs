@@ -2,6 +2,8 @@ use std::error::Error;
 use std::env;
 use std::process;
 
+use itertools::Itertools;
+
 use gw2lib::{Client, Requester};
 use gw2lib::model::items::{Item, ItemId, Details};
 use gw2lib::model::items::itemstats::{ItemStat, StatsId};
@@ -136,14 +138,33 @@ impl ArmoryMarkup for ItemId
 	}
 }
 
+impl ArmoryMarkup for Vec<ItemId>
+{
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(self.iter().flat_map(|e| e.to_markup()).join(", "))
+	}
+}
+
+impl ArmoryMarkup for Vec<Equip>
+{
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(self.iter().flat_map(|e| e.to_markup()).join("\n"))
+	}
+}
+
+/*
+// generic
 impl<T> ArmoryMarkup for Vec<T>
 	where T: ArmoryMarkup
 {
 	fn to_markup(&self) -> Option<String>
 	{
-		Some(self.iter().flat_map(|e| e.to_markup()).collect())
+		Some(self.iter().flat_map(|e| e.to_markup()).join(", "))
 	}
 }
+*/
 
 impl ArmoryMarkup for Stats {
 	fn to_markup(&self) -> Option<String>
@@ -173,7 +194,7 @@ impl ArmoryMarkup for Equip {
 			(Some(Slot::Gloves), Some(s), Some(u))		=> Some(format!("- Gloves {}, {}", s.to_markup()?, u.to_markup()?)),
 			(Some(Slot::Helm), Some(s), Some(u))		=> Some(format!("- Helm {}, {}", s.to_markup()?, u.to_markup()?)),
 			(Some(Slot::Leggings), Some(s), Some(u))	=> Some(format!("- Leggings {}, {}", s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::Shoulders), Some(s), Some(u))	=> Some(format!("- Shoulders {}, {}\n", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Shoulders), Some(s), Some(u))	=> Some(format!("- Shoulders {}, {}", s.to_markup()?, u.to_markup()?)),
 
 			(Some(Slot::WeaponA1), Some(s), Some(u))	=> Some(format!("- Weapon A1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
 			(Some(Slot::WeaponA2), Some(s), Some(u))	=> Some(format!("- Weapon A2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
@@ -183,12 +204,8 @@ impl ArmoryMarkup for Equip {
 			(Some(Slot::Relic), _, _)		=> Some(format!("- Relic: {}", self.id.to_markup()?)),
 			(_,_,_) => None,
 			// (_,_,_) => Some(format!("!!! UNKNOWN {:?}\n", self)),
-		}? + &String::from("\n"))
+		}?)
 	}
-}
-
-fn create_gear(c: &Character) -> Option<String> {
-	c.equipment.to_markup()
 }
 
 fn create_page(c: &Character) -> Option<String> {
