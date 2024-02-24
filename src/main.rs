@@ -1,37 +1,23 @@
-/// use gw2lib::{Client, Requester};
-/// use gw2lib_model::authenticated::{
-///     account::Account,
-///     characters::{Character, CharacterId},
-/// };
-///
-/// let client = Client::default().api_key("<subtoken>");
-/// let account: Account = client.get().unwrap();
-/// let client = client.identifier(&account.id);
-///
-/// // make a request
-/// let characters: Vec<CharacterId> = client.ids::<Character, CharacterId>().unwrap();
-///
-/// let client = Client::default().api_key("<different subtoken>");
-/// let client = client.identifier(account.id);
-///
-/// // cache hit
-/// let characters: Vec<CharacterId> = client.ids::<Character, CharacterId>().unwrap();
+use std::error::Error;
+use std::env;
+use std::process;
 
 use gw2lib::{Client, Requester};
+use gw2lib::model::items::{Item, ItemId, Details};
+use gw2lib::model::items::itemstats::{ItemStat, StatsId};
 use gw2lib::model::authenticated::{
-	characters::{Character, CharacterId, BuildTemplate, Profession},
+	characters::{Character, CharacterId, BuildTemplate, Profession, Skillset, TraitLine, Equip, Slot, Stats},
 };
 
-trait ArmoryMarkup {
+trait FrontmatterMarkup {
 	fn to_frontmatter(&self) -> String;
-	fn to_markup(&self) -> String;
 }
 
-impl ArmoryMarkup for BuildTemplate {
-
+impl FrontmatterMarkup for BuildTemplate {
 	fn to_frontmatter(&self) -> String
 	{
 		let spec = match self.specializations[2].id.unwrap() {
+			// HoT elites
 			5 => String::from("druid"),
 			7 => String::from("daredevil"),
 			18 => String::from("berserker"),
@@ -42,6 +28,7 @@ impl ArmoryMarkup for BuildTemplate {
 			48 => String::from("tempest"),
 			52 => String::from("herald"),
 			
+			// PoF elites
 			55 => String::from("soulbeast"),
 			56 => String::from("weaver"),
 			57 => String::from("holosmith"),
@@ -52,6 +39,7 @@ impl ArmoryMarkup for BuildTemplate {
 			62 => String::from("firebrand"),
 			63 => String::from("renegade"),
 
+			// EoD elites
 			64 => String::from("harbinger"),
 			65 => String::from("willbender"),
 			66 => String::from("virtuoso"),
@@ -62,6 +50,7 @@ impl ArmoryMarkup for BuildTemplate {
 			71 => String::from("specter"),
 			72 => String::from("untamed"),
 
+			// core or no third spec
 			_ => match self.profession.as_ref() {
 				Some(Profession::Elementalist) => String::from("elementalist"), 
 				Some(Profession::Engineer) => String::from("engineer"), 
@@ -75,61 +64,195 @@ impl ArmoryMarkup for BuildTemplate {
 				None => String::from("unknown")
 			}
 		};
-
 		format!("spec: {spec}")
-	}
-
-	fn to_markup(&self) -> String
-	{
-		format!(concat!(
-			"<div ",
-			  "data-armory-embed='skills' ",
-			  "data-armory-ids='{healing},{utility1},{utility2},{utility3},{elite}'",
-			"></div>",
-			"<div ",
-			  "data-armory-embed='specializations' ",
-			  "data-armory-ids='{spec1},{spec2},{spec3}' ",
-			  "data-armory-{spec1}-traits='{trait11},{trait12},{trait13}' ",
-			  "data-armory-{spec2}-traits='{trait21},{trait22},{trait23}' ",
-			  "data-armory-{spec3}-traits='{trait31},{trait32},{trait33}'",
-			">",
-			"</div>"),
-			// TODO: make this less dumb
-			healing=self.skills.heal.unwrap(),
-			utility1=self.skills.utilities[0].unwrap(),
-			utility2=self.skills.utilities[1].unwrap(),
-			utility3=self.skills.utilities[2].unwrap(),
-			elite=self.skills.elite.unwrap(),
-			spec1=self.specializations[0].id.unwrap(),
-			spec2=self.specializations[1].id.unwrap(),
-			spec3=self.specializations[2].id.unwrap(),
-			trait11=self.specializations[0].traits.unwrap()[0].unwrap(),
-			trait12=self.specializations[0].traits.unwrap()[1].unwrap(),
-			trait13=self.specializations[0].traits.unwrap()[2].unwrap(),
-			trait21=self.specializations[1].traits.unwrap()[0].unwrap(),
-			trait22=self.specializations[1].traits.unwrap()[1].unwrap(),
-			trait23=self.specializations[1].traits.unwrap()[2].unwrap(),
-			trait31=self.specializations[2].traits.unwrap()[0].unwrap(),
-			trait32=self.specializations[2].traits.unwrap()[1].unwrap(),
-			trait33=self.specializations[2].traits.unwrap()[2].unwrap(),
-		)
 	}
 }
 
-fn main() {
-	let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
-	let id = CharacterId::from("Johnny Vicious");
-	let individual: Character = client.single(id).unwrap();
+trait ArmoryMarkup {
+	fn to_markup(&self) -> Option<String>;
+}
 
-	// let equipidx = individual.active_equipment_tab.unwrap();
-	// println!("Active Equipment: {}", equipidx);
-	// println!("Equipment: {:?}", individual.equipment_tabs[equipidx].equipment);
+// note: this only really works in the context of a full BuildTemplate
+impl ArmoryMarkup for TraitLine {
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(format!("data-armory-{spec}-traits='{trait1},{trait2},{trait3}' ",
+			spec=self.id?,
+			trait1=self.traits?[0]?,
+			trait2=self.traits?[1]?,
+			trait3=self.traits?[2]?,
+		))
+	}
+}
 
-	let buildidx = individual.active_build_tab.unwrap();
-	let build = &individual.build_tabs[buildidx-1].build;
-	// println!("Active Build: {}", buildidx);
-	println!("Frontmatter:\n\n{}\n", build.to_frontmatter());
-	println!("Markup:\n\n{}\n", build.to_markup());
+impl ArmoryMarkup for Skillset {
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(format!("<div data-armory-embed='skills' data-armory-ids='{healing},{utility1},{utility2},{utility3},{elite}'></div>",
+			healing=self.heal?,
+			utility1=self.utilities[0]?,
+			utility2=self.utilities[1]?,
+			utility3=self.utilities[2]?,
+			elite=self.elite?,
+		))
+	}
+}
+
+impl ArmoryMarkup for BuildTemplate {
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(format!(concat!(
+			"{skills}",
+			"<div ",
+			  "data-armory-embed='specializations' ",
+			  "data-armory-ids='{spec1},{spec2},{spec3}' ",
+			  "{traitline1} {traitline2} {traitline3}",
+			">",
+			"</div>"),
+			skills=self.skills.to_markup()?,
+			spec1=self.specializations[0].id?,
+			spec2=self.specializations[1].id?,
+			spec3=self.specializations[2].id?,
+			traitline1=self.specializations[0].to_markup()?,
+			traitline2=self.specializations[1].to_markup()?,
+			traitline3=self.specializations[2].to_markup()?,
+		))
+	}
+}
+
+impl ArmoryMarkup for ItemId
+{
+	fn to_markup(&self) -> Option<String>
+	{
+		let client = Client::default();
+		let result = client.single::<Item, ItemId>(*self);
+		match result {
+			Ok(item) => match item.details {
+				Details::Weapon(details) => Some(format!("{:?}", details._type)),
+				_ => Some(item.name),
+			}
+			_ => None
+		}
+	}
+}
+
+impl<T> ArmoryMarkup for Vec<T>
+	where T: ArmoryMarkup
+{
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(self.iter().flat_map(|e| e.to_markup()).collect())
+	}
+}
+
+impl ArmoryMarkup for Stats {
+	fn to_markup(&self) -> Option<String>
+	{
+		let client = Client::default();
+		let result = client.single::<ItemStat, StatsId>(self.id);
+		match result {
+			Ok(stat) => Some(stat.name),
+			_ => None
+		}
+	}
+}
+
+impl ArmoryMarkup for Equip {
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(match (self.slot.clone(), self.stats.clone(), self.upgrades.clone()) {
+			(Some(Slot::Backpack), Some(s), _)		=> Some(format!("- Backpack: {}", s.to_markup()?)),
+			(Some(Slot::Accessory1), Some(s), _)	=> Some(format!("- Accessory 1: {}", s.to_markup()?)),
+			(Some(Slot::Accessory2), Some(s), _)	=> Some(format!("- Accessory 2: {}", s.to_markup()?)),
+			(Some(Slot::Ring1), Some(s), _)			=> Some(format!("- Ring 1: {}", s.to_markup()?)),
+			(Some(Slot::Ring2), Some(s), _)			=> Some(format!("- Ring 2: {}", s.to_markup()?)),
+			(Some(Slot::Amulet), Some(s), _)		=> Some(format!("- Amulet: {}", s.to_markup()?)),
+
+			(Some(Slot::Coat), Some(s), Some(u))		=> Some(format!("- Coat {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Boots), Some(s), Some(u))		=> Some(format!("- Boots {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Gloves), Some(s), Some(u))		=> Some(format!("- Gloves {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Helm), Some(s), Some(u))		=> Some(format!("- Helm {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Leggings), Some(s), Some(u))	=> Some(format!("- Leggings {}, {}", s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::Shoulders), Some(s), Some(u))	=> Some(format!("- Shoulders {}, {}\n", s.to_markup()?, u.to_markup()?)),
+
+			(Some(Slot::WeaponA1), Some(s), Some(u))	=> Some(format!("- Weapon A1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponA2), Some(s), Some(u))	=> Some(format!("- Weapon A2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponB1), Some(s), Some(u))	=> Some(format!("- Weapon B1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponB2), Some(s), Some(u))	=> Some(format!("- Weapon B2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
+
+			(Some(Slot::Relic), _, _)		=> Some(format!("- Relic: {}", self.id.to_markup()?)),
+			(_,_,_) => None,
+			// (_,_,_) => Some(format!("!!! UNKNOWN {:?}\n", self)),
+		}? + &String::from("\n"))
+	}
+}
+
+fn create_gear(c: &Character) -> Option<String> {
+	c.equipment.to_markup()
+}
+
+fn create_page(c: &Character) -> Option<String> {
+	let buildidx = c.active_build_tab.unwrap_or(1);
+	let build = &c.build_tabs[buildidx-1].build;
+	let gearidx = c.active_equipment_tab.unwrap_or(1);
+	let gear = &c.equipment_tabs[gearidx-1].equipment;
+	Some(format!(concat!(
+			"---\n",
+			"layout: build\n",
+			"author: AW2\n",
+			"credit: AW2\n",
+			"editor: AW2\n",
+			"title: {id}\n",
+			"tags: POWER_CONDI_HYBRID PROFESSION SPECIALIZATION EXPANSION LOWCOG LOWPHYS LOWREP\n",
+			"tagline: FROM API\n",
+			"balance: January 2024\n",
+			"{build_frontmatter}\n",
+			"---\n\n",
+			"INSERT SUMMARY HERE",
+			"\n\n",
+			"## Gearing\n\n",
+			"{gear}",
+			"\n\n",
+			"`CHATLINK`", // #TODO
+			"\n\n",
+			"{skills_and_traits}",
+			"\n\n",
+			"## Notes\n\n",
+			"INSERT NOTES HERE\n\n",
+			"## Other References\n\n",
+			"{{% include video id=\"YOUTUBE_ID\" provider=\"youtube\" %}}",
+			"\n\n",
+			),
+		id=c.core.name,
+		build_frontmatter=build.to_frontmatter(),
+		gear=gear.to_markup()?,
+		skills_and_traits=build.to_markup()?
+	))
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 3 {
+        println!("Usage: {} <api-key> <character name>", args[0]);
+        process::exit(1);
+    }
+
+    let key = &args[1];
+	let id = CharacterId::from(&args[2]);
+
+	let client = Client::default().api_key(key);
+
+	if let Ok(c) = client.single::<Character, CharacterId>(id.clone()) {
+		println!("{}", create_page(&c).unwrap_or(String::from("invalid build")));
+	} else {
+		println!("Character {id} not found. Available characters:");
+		let names: Vec<CharacterId> = client.ids::<Character, CharacterId>().unwrap();
+		for name in names {
+			println!("- {name}");
+		}
+	}
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -145,12 +268,12 @@ mod tests {
 	}
 
 	#[test]
+	#[ignore]
 	fn get_equipment() { 
-		// relatively expensive
+		/// #TODO
 		let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
 		let id = CharacterId::from("Johnny Vicious");
-		let individual: Character = client.single(id).unwrap();
-		assert_eq!(individual.core.name, "Johnny Vicious");
+		let c: Character = client.single(id).unwrap();
 	}
 
 	#[test]
@@ -159,8 +282,8 @@ mod tests {
 		// relatively expensive
 		let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
 		let id = CharacterId::from("Johnny Vicious");
-		let individual: Character = client.single(id).unwrap();
-		assert_eq!(individual.core.name, "Johnny Vicious");
+		let c: Character = client.single(id).unwrap();
+		assert_eq!(c.core.name, "Johnny Vicious");
 	}
 
 	#[test]
