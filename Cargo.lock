@@ -78,9 +78,11 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "buildwars"
-version = "0.3.0"
+version = "0.3.2"
 dependencies = [
  "gw2lib",
+ "gw2lib-keys",
+ "gw2lib-model",
  "itertools",
 ]
 
@@ -124,6 +126,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-targets 0.52.1",
 ]
@@ -281,8 +284,6 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 [[package]]
 name = "gw2lib"
 version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05de81710a702a3e0ecdafca77001b1db23bf412550659c3dddedf618a1e6f2f"
 dependencies = [
  "async-trait",
  "chrono",
@@ -301,10 +302,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gw2lib-keys"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "gw2lib-model"
 version = "2.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "269495546c31c83a27cde0265334973a4a994f1973da564af18a07f8aef4a220"
 dependencies = [
  "either",
  "serde",
