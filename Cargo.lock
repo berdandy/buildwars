@@ -284,7 +284,7 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 [[package]]
 name = "gw2lib"
 version = "3.0.0"
-source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#cc3635558176cb29e4050c06116706ae59fcd0fe"
+source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#8728dc5c012bc6f2ea0539b4a778dd33cf7aac03"
 dependencies = [
  "async-trait",
  "chrono",
@@ -305,7 +305,7 @@ dependencies = [
 [[package]]
 name = "gw2lib-keys"
 version = "0.1.0"
-source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#cc3635558176cb29e4050c06116706ae59fcd0fe"
+source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#8728dc5c012bc6f2ea0539b4a778dd33cf7aac03"
 dependencies = [
  "base64",
  "chrono",
@@ -316,7 +316,7 @@ dependencies = [
 [[package]]
 name = "gw2lib-model"
 version = "2.1.4"
-source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#cc3635558176cb29e4050c06116706ae59fcd0fe"
+source = "git+https://github.com/berdandy/gw2lib?branch=ranger_pets_endpoint#8728dc5c012bc6f2ea0539b4a778dd33cf7aac03"
 dependencies = [
  "either",
  "serde",

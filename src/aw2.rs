@@ -3,17 +3,18 @@ use itertools::Itertools;
 use gw2lib::{Client, Requester};
 use gw2lib::model::items::{Item, ItemId, Details};
 use gw2lib::model::items::itemstats::{ItemStat, StatsId};
-use gw2lib::model::game_mechanics::pets::Pet;
+use gw2lib::model::game_mechanics::pets::{Pet, PetId};
+// use gw2lib::model::game_mechanics::legends::Legend;
 use gw2lib::model::authenticated::{
-	characters::{BuildTemplate, Skillset, TraitLine, Equip, Slot, Stats, PetId, BuildPets},
+	characters::{BuildTemplate, Profession, Skillset, TraitLine, Equip, Slot, Stats, BuildPets, LegendSlots, LegendId },
 };
 
-pub trait ArmoryMarkup {
+pub trait Aw2Markup {
 	fn to_markup(&self) -> Option<String>;
 }
 
 // note: this only really works in the context of a full BuildTemplate
-impl ArmoryMarkup for TraitLine {
+impl Aw2Markup for TraitLine {
 	fn to_markup(&self) -> Option<String>
 	{
 		Some(format!("data-armory-{spec}-traits='{trait1},{trait2},{trait3}' ",
@@ -25,7 +26,7 @@ impl ArmoryMarkup for TraitLine {
 	}
 }
 
-impl ArmoryMarkup for Skillset {
+impl Aw2Markup for Skillset {
 	fn to_markup(&self) -> Option<String>
 	{
 		Some(format!("<div data-armory-embed='skills' data-armory-ids='{healing},{utility1},{utility2},{utility3},{elite}'></div>",
@@ -38,12 +39,37 @@ impl ArmoryMarkup for Skillset {
 	}
 }
 
-impl ArmoryMarkup for BuildTemplate {
+impl Aw2Markup for BuildTemplate {
 	fn to_markup(&self) -> Option<String>
 	{
+		if self.profession == Some(Profession::Revenant) {
+			eprintln!("Warning: revenant legends not implemented. Skills will likely be wrong");
+		}
+		
+		/*
+		let legends = [
+			self.legends?[0].clone()?.to_markup()?,
+			self.legends?[1].clone()?.to_markup()?
+		];
+
+		let fixed_legends = legends
+			.iter()
+			.map(|legend| match &legend[..] {
+				"Fire" => String::from("Legend1"),
+				"Water" => String::from("Legend2"),
+				"Air" => String::from("Legend3"),
+				"Earth" => String::from("Legend4"),
+				"Deathshroud" => String::from("Legend6"),
+				_ => match &self.specializations[2].id {
+					Some(63) => String::from("Legend5"),
+					Some(69) => String::from("Legend7"),	// doesn't exist in API
+					_ => String::from(""),
+				}
+			}).collect();
+		*/
+
 		Some(format!(concat!(
 			"{pets}",
-			"{legends}",
 			"{skills}",
 			"<div ",
 			  "data-armory-embed='specializations' ",
@@ -53,10 +79,6 @@ impl ArmoryMarkup for BuildTemplate {
 			"</div>"),
 			pets=match &self.pets {
 				Some(pets) => pets.to_markup()?,
-				_ => String::from("")
-			},
-			legends=match &self.legends {
-				// Some(legends) => legends.to_markup()?,
 				_ => String::from("")
 			},
 			skills=self.skills.to_markup()?,
@@ -70,7 +92,7 @@ impl ArmoryMarkup for BuildTemplate {
 	}
 }
 
-impl ArmoryMarkup for ItemId
+impl Aw2Markup for ItemId
 {
 	fn to_markup(&self) -> Option<String>
 	{
@@ -86,7 +108,7 @@ impl ArmoryMarkup for ItemId
 	}
 }
 
-impl ArmoryMarkup for Vec<ItemId>
+impl Aw2Markup for Vec<ItemId>
 {
 	fn to_markup(&self) -> Option<String>
 	{
@@ -94,7 +116,7 @@ impl ArmoryMarkup for Vec<ItemId>
 	}
 }
 
-impl ArmoryMarkup for Vec<Equip>
+impl Aw2Markup for Vec<Equip>
 {
 	fn to_markup(&self) -> Option<String>
 	{
@@ -104,8 +126,8 @@ impl ArmoryMarkup for Vec<Equip>
 
 /*
 // generic
-impl<T> ArmoryMarkup for Vec<T>
-	where T: ArmoryMarkup
+impl<T> Aw2Markup for Vec<T>
+	where T: Aw2Markup
 {
 	fn to_markup(&self) -> Option<String>
 	{
@@ -114,7 +136,7 @@ impl<T> ArmoryMarkup for Vec<T>
 }
 */
 
-impl ArmoryMarkup for Stats {
+impl Aw2Markup for Stats {
 	fn to_markup(&self) -> Option<String>
 	{
 		let client = Client::default();
@@ -126,7 +148,7 @@ impl ArmoryMarkup for Stats {
 	}
 }
 
-impl ArmoryMarkup for Equip {
+impl Aw2Markup for Equip {
 	fn to_markup(&self) -> Option<String>
 	{
 		Some(match (self.slot.clone(), self.stats.clone(), self.upgrades.clone()) {
@@ -162,7 +184,7 @@ impl ArmoryMarkup for Equip {
 	}
 }
 
-impl ArmoryMarkup for PetId {
+impl Aw2Markup for PetId {
 	fn to_markup(&self) -> Option<String>
 	{
 		// Some(format!("PETID({})", self))
@@ -175,9 +197,36 @@ impl ArmoryMarkup for PetId {
 	}
 }
 
-impl ArmoryMarkup for BuildPets {
+impl Aw2Markup for BuildPets {
 	fn to_markup(&self) -> Option<String>
 	{
 		Some(format!("Pets: {}, {}\n\n", self.terrestrial[0]?.to_markup()?, self.terrestrial[1]?.to_markup()?))
 	}
 }
+
+impl Aw2Markup for LegendId {
+	fn to_markup(&self) -> Option<String>
+	{
+		Some(format!("LEGEND({})", self))
+/*
+		let client = Client::default();
+		let result = client.single::<Pet, PetId>(*self);
+		match result {
+			Ok(pet) => Some(format!("{}", pet.name)),
+			_ => None
+		}
+*/
+	}
+}
+
+impl Aw2Markup for LegendSlots {
+	fn to_markup(&self) -> Option<String>
+	{
+		let legend1 = self[0].clone()?.to_markup()?;
+		println!(">> {:?}", legend1);
+		let legend2 = self[1].clone()?.to_markup()?;
+		println!(">> >> {:?}", legend2);
+		Some(format!("Legends: {legend1}, {legend2}\n\n"))
+	}
+}
+
