@@ -22,7 +22,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 	let key = &args[1];
 	if args.len() == 2 {
-		buildwars::print_available_characters(key);
+        eprintln!("Getting available characters...");
+		buildwars::print_available_characters_detailed(key);
 
 	} else if args.len() >= 3 {
 		let id = CharacterId::from(&args[2]);
@@ -31,6 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			if args.len() < 4 {
 				// only list equipment/build tabs
+                eprintln!("Getting available tabs on {}...", id);
 				println!("{} - {:?} {:?} {:?}\n\nEquipment Tabs:", id, c.core.gender, c.core.race, c.core.profession, );
 				for (i, tab) in c.equipment_tabs.iter().enumerate() {
 					println!("{}: {}", i+1, tab.name);
