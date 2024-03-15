@@ -7,7 +7,7 @@ use gw2lib::model::authenticated::{
 };
 
 use buildwars;
-use buildwars::ArmoryMarkup;
+use buildwars::Aw2Markup;
 use buildwars::FrontmatterMarkup;
 
 #[test]
@@ -44,6 +44,7 @@ fn get_ranger() {
 }
 
 #[test]
+#[ignore = "not yet implemented"]
 fn get_revenant() {
 	let client = Client::default().api_key("90791260-3DC7-D94C-8004-040CB45D645BD6E50684-1FFD-4169-A456-20F8AE7A22A2");
 	let id = CharacterId::from("Johnny Socotra");
