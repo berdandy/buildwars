@@ -18,21 +18,6 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 
 	Some(format!(concat!(
 			"+++\n",
-			"title = \"{id}\"\n" ,
-			"description = \"INDEX DESCRIPTION\"\n",
-			"date = 2024-01-01\n", // today?
-			"draft = true\n",
-			"template = \"build.html\"\n",
-			"[taxonomies]\n",
-			"tags = [\"CONDI_OR_POWER\",\"PROFESSION\",\"SPECIALIZATION\",\"EXPANSION\",\"lowcog\",\"lowphys\",\"lowrep\"]\n",
-			"authors = [\"YOURNAME\"]\n",
-			"[extra]\n",
-			"series = \"PROFESSION\"\n",
-			"tagline = \"SOMETHING SILLY\"\n",
-			"keywords = \"Guild Wars 2, GW2, LI, SPECIALIZATION\"\n",
-			"toc = true\n",
-			"spec = \"SPECIALIZATION\"\n",
-			"balance = \"January 2024\"\n",
 			"{build_frontmatter}\n",
 			"+++\n",
 			"\n\n",
@@ -55,7 +40,6 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 			"{{ youtube(id=\"YOUTUBE_ID\") }}",
 			"\n\n",
 			),
-		id=c.core.name,
 		build_frontmatter=build.to_frontmatter()?,
 		gear=gear.to_markup()?,
 		skills_and_traits=build.to_markup()?
