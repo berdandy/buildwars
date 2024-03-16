@@ -20,9 +20,3 @@ fn get_bulk_characters() {
 	let characters: Vec<Character> = client.all().unwrap();
 	assert_eq!(characters.len(), 15);
 }
-
-#[test]
-#[ignore = "not yet implemented"]
-fn get_chatlink() {
-	todo!("get chatlink from api");
-}

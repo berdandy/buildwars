@@ -4,6 +4,7 @@ version = "0.3.4"
 edition = "2021"
 
 [dependencies]
+chatr = { version = "0.5.2", path = "../chatr" }
 chrono = "0.4.35"
 gw2lib = { version = "3.0.0", git = "https://github.com/berdandy/gw2lib", branch = "ranger_pets_endpoint", features = ["blocking"] }
 gw2lib-keys = { version = "0.1.0", git = "https://github.com/berdandy/gw2lib", branch = "ranger_pets_endpoint" }

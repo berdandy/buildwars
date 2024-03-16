@@ -6,6 +6,8 @@ use gw2lib::model::authenticated::{
 pub mod frontmatter;
 pub use frontmatter::FrontmatterMarkup;
 
+pub mod chatlink;
+
 pub mod aw2;
 pub use aw2::Aw2Markup;
 
@@ -21,23 +23,23 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 			"{build_frontmatter}\n",
 			"+++\n",
 			"\n\n",
-			"DESCRIPTION",
+			"**DESCRIPTION**",
 			"\n\n",
 			"## Gearing\n\n",
 			"{gear}",
 			"\n\n",
 			"---\n",
 			"\n\n",
-			"`CHATLINK`", // #TODO
+			"`**CHATLINK #TODO: AUTOGENERATE**`",
 			"\n\n",
 			"{skills_and_traits}",
 			"\n\n",
 			"## Notes\n\n",
-			"INSERT NOTES HERE\n\n",
+			"**ROTATION AND BUILD NOTES**\n\n",
 			"## Crowd Control\n\n",
-			"INSERT CC NOTES HERE\n\n",
+			"**CC NOTES**\n\n",
 			"## Video\n\n",
-			"{{ youtube(id=\"YOUTUBE_ID\") }}",
+			"{{ youtube(id=\"**YOUTUBE_ID**\") }}",
 			"\n\n",
 			),
 		build_frontmatter=build.to_frontmatter()?,

@@ -58,9 +58,10 @@ impl FrontmatterMarkup for BuildTemplate {
 		};
 		let spec_lower = spec.as_ref().expect("Unknown profession/specialization in build!").to_ascii_lowercase();
 		
-		let desc = format!("{} Build", spec.as_ref()?);
 		let prof = format!("{:?}", self.profession.as_ref()?);
 		let prof_lower = format!("{:?}", self.profession.as_ref()?).to_ascii_lowercase();
+
+		let desc = format!("{} Build", spec.as_ref()?);
 
 		Some(format!(concat!(
 				"title = \"{id}\"\n" ,
@@ -70,12 +71,12 @@ impl FrontmatterMarkup for BuildTemplate {
 				"template = \"build.html\"\n",
 				"\n",
 				"[taxonomies]\n",
-				"tags = [\"CONDI_OR_POWER\",\"{prof_lower}\",\"{spec_lower}\",\"EXPANSION\",\"lowcog\",\"lowphys\",\"lowrep\"]\n",
-				"authors = [\"YOURNAME\"]\n",
+				"tags = [\"**CONDI_OR_POWER**\",\"{prof_lower}\",\"{spec_lower}\",\"**EXPANSION**\",\"lowcog\",\"lowphys\",\"lowrep\"]\n",
+				"authors = [\"**YOURNAME**\"]\n",
 				"\n",
 				"[extra]\n",
 				"series = \"{prof_lower}\"\n",
-				"tagline = \"SOMETHING SILLY\"\n",
+				"tagline = \"**FLAVOUR TEXT**\"\n",
 				"keywords = \"Guild Wars 2, GW2, LI, {prof}, {spec}\"\n",
 				"toc = true\n",
 				"spec = \"{spec_lower}\"\n",
