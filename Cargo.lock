@@ -96,7 +96,7 @@ dependencies = [
 
 [[package]]
 name = "buildwars"
-version = "0.3.4"
+version = "0.4.0"
 dependencies = [
  "chatr",
  "chrono",
@@ -138,10 +138,11 @@ checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
 name = "chatr"
-version = "0.5.3"
+version = "0.6.0"
 dependencies = [
  "base64",
  "deku",
+ "lazy_static",
  "reqwest",
  "serde",
  "serde_json",

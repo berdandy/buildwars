@@ -22,9 +22,35 @@ impl ToChatr for Gw2libTemplate {
 			Profession::Revenant => 9,
 		};
 
-		todo!("conversion of gw2lib BuildTemplate to chatr BuildTemplate");
+		let skills: [u16 ; 5] = [
+			self.skills.heal.unwrap().try_into().unwrap(),
+			self.skills.utilities[0].unwrap().try_into().unwrap(),
+			self.skills.utilities[1].unwrap().try_into().unwrap(),
+			self.skills.utilities[2].unwrap().try_into().unwrap(),
+			self.skills.elite.unwrap().try_into().unwrap(),
+		];
+		bt.set_palette_ids_from_skill_ids(skills);
 
-		// Some(bt)
+		let specs = [
+			self.specializations[0].id.unwrap() as u8,
+			self.specializations[1].id.unwrap() as u8,
+			self.specializations[2].id.unwrap() as u8,
+		];
+
+		let traits = [
+			self.specializations[0].traits.unwrap()[0].unwrap(),
+			self.specializations[0].traits.unwrap()[1].unwrap(),
+			self.specializations[0].traits.unwrap()[2].unwrap(),
+			self.specializations[1].traits.unwrap()[0].unwrap(),
+			self.specializations[1].traits.unwrap()[1].unwrap(),
+			self.specializations[1].traits.unwrap()[2].unwrap(),
+			self.specializations[2].traits.unwrap()[0].unwrap(),
+			self.specializations[2].traits.unwrap()[1].unwrap(),
+			self.specializations[2].traits.unwrap()[2].unwrap(),
+		];
+		bt.set_spec_and_trait_indexes_from_ids(specs, traits);
+
+		Some(bt)
     }
 }
 

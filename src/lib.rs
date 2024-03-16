@@ -1,12 +1,11 @@
 use gw2lib::{Client, Requester};
-use gw2lib::model::authenticated::{
-	characters::{Character, CharacterId},
-};
+use gw2lib::model::authenticated::characters::{Character, CharacterId};
 
 pub mod frontmatter;
 pub use frontmatter::FrontmatterMarkup;
 
 pub mod chatlink;
+pub use chatlink::ChatlinkMarkup;
 
 pub mod aw2;
 pub use aw2::Aw2Markup;
@@ -29,8 +28,8 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 			"{gear}",
 			"\n\n",
 			"---\n",
-			"\n\n",
-			"`**CHATLINK #TODO: AUTOGENERATE**`",
+			"`{chatlink}`\n",
+			"---\n",
 			"\n\n",
 			"{skills_and_traits}",
 			"\n\n",
@@ -44,6 +43,7 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 			),
 		build_frontmatter=build.to_frontmatter()?,
 		gear=gear.to_markup()?,
+		chatlink=build.to_chatlink()?,
 		skills_and_traits=build.to_markup()?
 	))
 }
