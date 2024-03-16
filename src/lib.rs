@@ -1,5 +1,5 @@
 use gw2lib::{Client, Requester};
-use gw2lib::model::authenticated::characters::{Character, CharacterId};
+use gw2lib::model::authenticated::characters::{Character, CharacterId, Profession};
 
 pub mod frontmatter;
 pub use frontmatter::FrontmatterMarkup;
@@ -16,6 +16,7 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 
 	let gear = &c.equipment_tabs[gearidx-1].equipment;
 	let build = &c.build_tabs[buildidx-1].build;
+
 
 	Some(format!(concat!(
 			"+++\n",
@@ -43,7 +44,10 @@ pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Opti
 			),
 		build_frontmatter=build.to_frontmatter()?,
 		gear=gear.to_markup()?,
-		chatlink=build.to_chatlink()?,
+		chatlink=match c.core.profession {
+			Profession::Revenant | Profession::Ranger => String::from("CHATCODE"),
+			_ => build.to_chatlink()?,
+		},
 		skills_and_traits=build.to_markup()?
 	))
 }
