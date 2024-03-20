@@ -179,7 +179,9 @@ impl Aw2Markup for Equip {
 
 			(Some(slot), _, Some(u))		=> Some(format!("- Unknown {:?}, {}", slot, u.to_markup()?)),
 			(Some(slot),_,_)				=> Some(format!("- Unknown {:?}", slot)),
+
 			(None,_,_) => None,
+			// (None,_,_) => Some(format!("? MYSTERY: {:?}", self)),	// <-- replace line above for checking api wierdness
 		}?)
 	}
 }

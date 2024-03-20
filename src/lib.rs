@@ -10,13 +10,19 @@ pub use chatlink::ChatlinkMarkup;
 pub mod aw2;
 pub use aw2::Aw2Markup;
 
-pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Option<String> {
-	let gearidx = gear_arg.parse::<usize>().unwrap_or(c.active_equipment_tab.unwrap());
-	let buildidx = build_arg.parse::<usize>().unwrap_or(c.active_build_tab.unwrap());
+static USE_DEFAULT_EQUIPMENT_ON_CHAR: bool = true;
 
-	let gear = &c.equipment_tabs[gearidx-1].equipment;
+pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Option<String> {
+	let buildidx = build_arg.parse::<usize>().unwrap_or(c.active_build_tab.unwrap());
 	let build = &c.build_tabs[buildidx-1].build;
 
+	let gear = match gear_arg.parse::<usize>() {
+		Ok(gearidx) => &c.equipment_tabs[gearidx-1].equipment,
+		_ => match USE_DEFAULT_EQUIPMENT_ON_CHAR {
+			true => &c.equipment,														// character equipment
+			false => &c.equipment_tabs[c.active_equipment_tab.unwrap() - 1].equipment,	// active tab
+		}
+	};
 
 	Some(format!(concat!(
 			"+++\n",
