@@ -80,7 +80,7 @@ impl FrontmatterMarkup for BuildTemplate {
 				"keywords = \"Guild Wars 2, GW2, LI, {prof}, {spec}\"\n",
 				"toc = true\n",
 				"spec = \"{spec_lower}\"\n",
-				"balance = \"January 2024\"",
+				"balance = \"March 2024\"",
 			),
 			id=self.name.as_ref()?,
 			today=Local::now().date_naive().format("%Y-%m-%d").to_string(),
