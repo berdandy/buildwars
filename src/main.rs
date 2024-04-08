@@ -7,11 +7,9 @@ use gw2lib::model::authenticated::{
 	characters::{Character, CharacterId},
 };
 
-use buildwars;
-
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 1 || args.len() > 5 || args[1] == "-h" || args[1] == "--help" {
+    if args.is_empty() || args.len() > 5 || args[1] == "-h" || args[1] == "--help" {
         println!("Usage: {} <api-key> [<character-name> [<equipment-tab> <build-tab>]]", args[0]);
 		println!("  extract an equipment and build tab into website format (currently AW2 only)");
 		println!("  if only api-key is provided, displays a list of characters");

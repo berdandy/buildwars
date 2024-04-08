@@ -151,7 +151,7 @@ impl Aw2Markup for Stats {
 impl Aw2Markup for Equip {
 	fn to_markup(&self) -> Option<String>
 	{
-		Some(match (self.slot.clone(), self.stats.clone(), self.upgrades.clone()) {
+		match (self.slot.clone(), self.stats.clone(), self.upgrades.clone()) {
 			(Some(Slot::Backpack), Some(s), _)		=> Some(format!("- Backpack: {}", s.to_markup()?)),
 			(Some(Slot::Accessory1), Some(s), _)	=> Some(format!("- Accessory 1: {}", s.to_markup()?)),
 			(Some(Slot::Accessory2), Some(s), _)	=> Some(format!("- Accessory 2: {}", s.to_markup()?)),
@@ -182,7 +182,7 @@ impl Aw2Markup for Equip {
 
 			(None,_,_) => None,
 			// (None,_,_) => Some(format!("? MYSTERY: {:?}", self)),	// <-- replace line above for checking api wierdness
-		}?)
+		}
 	}
 }
 
@@ -193,7 +193,7 @@ impl Aw2Markup for PetId {
 		let client = Client::default();
 		let result = client.single::<Pet, PetId>(*self);
 		match result {
-			Ok(pet) => Some(format!("{}", pet.name)),
+			Ok(pet) => Some(pet.name.to_string()),
 			_ => None
 		}
 	}

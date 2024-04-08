@@ -12,7 +12,7 @@ pub use aw2::Aw2Markup;
 
 static USE_DEFAULT_EQUIPMENT_ON_CHAR: bool = true;
 
-pub fn create_page(c: &Character, gear_arg: &String, build_arg: &String) -> Option<String> {
+pub fn create_page(c: &Character, gear_arg: &str, build_arg: &str) -> Option<String> {
 	let buildidx = build_arg.parse::<usize>().unwrap_or(c.active_build_tab.unwrap());
 	let build = &c.build_tabs[buildidx-1].build;
 
