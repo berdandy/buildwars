@@ -12,6 +12,7 @@ use gw2lib::model::authenticated::{
 use buildwars;
 
 #[derive(Parser)]
+#[command(version, about, long_about = None)]
 pub struct Args {
     /// API key from account.arena.net/applications. If used, it will be saved in buildwars.toml
     #[arg(short, long)]

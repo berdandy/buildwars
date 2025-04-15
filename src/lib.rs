@@ -60,7 +60,7 @@ pub fn print_available_characters(key: &String) {
 	let client = Client::default().api_key(key);
 	client.ids::<Character, CharacterId>().unwrap()
 		.into_iter()
-		.for_each(|name| println!("- {name}"));
+		.for_each(|name| println!("\"{name}\""));
 }
 
 pub fn print_available_characters_detailed(key: &String) {
@@ -69,7 +69,7 @@ pub fn print_available_characters_detailed(key: &String) {
 		.into_iter()
         .enumerate()
     {
-        println!("{}: {} ({:?} {:?} {:?})", i+1, c.core.name, c.core.gender, c.core.race, c.core.profession);
+        println!("{}: \"{}\" ({:?} {:?} {:?})", i+1, c.core.name, c.core.gender, c.core.race, c.core.profession);
     }
 }
 

@@ -1,3 +1,7 @@
+# Version 0.5.0
+
+- Added support for infix-upgrade ascended weapons like "Zojja's Hammer", etc
+
 # Version 0.4.4
 
 - Changed argument structure

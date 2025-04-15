@@ -1,21 +1,23 @@
 [package]
 name = "buildwars"
-version = "0.4.4"
+version = "0.5.0"
 edition = "2021"
 repository = "https://github.com/berdandy/buildwars"
 publish = false
 
 [dependencies]
-# chatr = { version = "0.6.0", path = "../chatr" }
-chatr = "0.6.0"
 chrono = "0.4.35"
 clap = { version = "4.5.20", features = ["derive"] }
 fast_config = { version = "1.1.3", features = ["toml"] }
-gw2lib = { version = "3.0.0", git = "https://github.com/berdandy/gw2lib", branch = "ranger_pets_endpoint", features = ["blocking"] }
-gw2lib-keys = { version = "0.1.0", git = "https://github.com/berdandy/gw2lib", branch = "ranger_pets_endpoint" }
-gw2lib-model = { version = "2.1.4", git = "https://github.com/berdandy/gw2lib", branch = "ranger_pets_endpoint" }
+gw2lib = { version = "3.0.0", git = "https://github.com/berdandy/gw2lib", features = ["blocking"] }
 itertools = "0.12.1"
 serde = "1.0.210"
+# chatr = "0.6.0"
+# gw2lib-keys = { version = "0.1.0", git = "https://github.com/berdandy/gw2lib" }
+# gw2lib-model = { version = "2.1.4", git = "https://github.com/berdandy/gw2lib" }
+chatr = { path = "../chatr" }
+gw2lib-keys = { path = "../gw2lib/keys" }
+gw2lib-model = { path = "../gw2lib/model" }
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
