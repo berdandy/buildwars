@@ -1,6 +1,7 @@
 # Version 0.5.0
 
 - Added support for infix-upgrade ascended weapons like "Zojja's Hammer", etc
+- Added saving of buildwars.toml with key into ~/.buildwars/buildwars.toml
 
 # Version 0.4.4
 
