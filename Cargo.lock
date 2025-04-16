@@ -146,7 +146,7 @@ dependencies = [
 
 [[package]]
 name = "buildwars"
-version = "0.4.4"
+version = "0.5.0"
 dependencies = [
  "chatr",
  "chrono",
@@ -154,7 +154,7 @@ dependencies = [
  "fast_config",
  "gw2lib",
  "gw2lib-keys",
- "gw2lib-model 2.2.0",
+ "gw2lib-model",
  "itertools",
  "serde",
 ]
@@ -194,7 +194,9 @@ checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
 name = "chatr"
-version = "0.6.11"
+version = "0.6.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3c753348ac7db68706216c71837f7120c75c3442e22867bcdbde450f8514836"
 dependencies = [
  "base64",
  "deku",
@@ -579,7 +581,7 @@ dependencies = [
  "dashmap",
  "either",
  "futures",
- "gw2lib-model 2.2.0 (git+https://github.com/berdandy/gw2lib)",
+ "gw2lib-model",
  "hyper",
  "hyper-rustls",
  "serde",
@@ -593,21 +595,12 @@ dependencies = [
 [[package]]
 name = "gw2lib-keys"
 version = "0.1.0"
+source = "git+https://github.com/berdandy/gw2lib#567d9d5a757e3a7324f205900983d89fe88714f3"
 dependencies = [
  "base64",
  "chrono",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "gw2lib-model"
-version = "2.2.0"
-dependencies = [
- "either",
- "serde",
- "serde_tuple",
- "urlencoding",
 ]
 
 [[package]]
