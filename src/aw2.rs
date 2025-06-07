@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use gw2lib::{Client, Requester};
-use gw2lib::model::items::{Item, ItemId, Details, WeaponDetails, InfixUpgrade};
+use gw2lib::model::items::{Item, ItemId, Details, WeaponDetails, ArmorDetails, InfixUpgrade};
 use gw2lib::model::items::itemstats::{ItemStat, StatsId};
 use gw2lib::model::game_mechanics::pets::{Pet, PetId};
 // use gw2lib::model::game_mechanics::legends::Legend;
@@ -107,10 +107,37 @@ impl Aw2Markup for InfixUpgrade {
 impl Aw2Markup for WeaponDetails {
 	fn to_markup(&self) -> Option<String>
     {
-        // Zojja's Hammer, etc
         match &self.upgrades.infix_upgrade {
-			Some(upg) => Some(format!("{:?}, {}", self._type, upg.to_markup()?)),
-			_ => Some(format!("{:?}", self._type))
+            // Zojja's Hammer, etc
+			Some(upg) => Some(format!("INFIX {} {:?}", upg.to_markup()?, self._type)),
+
+            // Legendary with stat
+			_ => Some(format!("LEGENDARY {:?}", self._type))
+        }
+    }
+}
+
+impl Aw2Markup for ArmorDetails {
+	fn to_markup(&self) -> Option<String>
+    {
+        match &self.upgrades.infix_upgrade {
+            // Zojja's Greaves, etc
+			Some(upg) => Some(format!("INFIX {} {:?}", upg.to_markup()?, self._type)),
+
+            // Legendary with stat
+			//_ => Some(format!("{:?}", self._type))
+            
+            // debug:
+			_ => {
+
+                /*
+                let client = Client::default();
+                let result = client.single::<ItemStat, ItemId>(self.id);
+
+                Some(format!("UNKNOWN ARMOR<<<{:?} {:?}>>>", self, result.unwrap()))
+                */
+                Some(format!("UNKNOWN ARMOR<<<{:?}>>>", self))
+            }
         }
     }
 }
@@ -123,7 +150,8 @@ impl Aw2Markup for ItemId
 		let result = client.single::<Item, ItemId>(*self);
 		match result {
 			Ok(item) => match item.details {
-				Details::Weapon(details) => details.to_markup(),
+				Details::Weapon(w) => w.to_markup(),
+				Details::Armor(a) => a.to_markup(),
 				_ => Some(item.name),
 			}
 			_ => None
@@ -189,10 +217,10 @@ impl Aw2Markup for Equip {
 			(Some(Slot::Leggings), Some(s), Some(u))	=> Some(format!("- {} Leggings, {}", s.to_markup()?, u.to_markup()?)),
 			(Some(Slot::Boots), Some(s), Some(u))		=> Some(format!("- {} Boots, {}", s.to_markup()?, u.to_markup()?)),
 
-			(Some(Slot::WeaponA1), Some(s), Some(u))	=> Some(format!("- Weapon A1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::WeaponA2), Some(s), Some(u))	=> Some(format!("- Weapon A2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::WeaponB1), Some(s), Some(u))	=> Some(format!("- Weapon B1: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
-			(Some(Slot::WeaponB2), Some(s), Some(u))	=> Some(format!("- Weapon B2: {}, {}, {}", self.id.to_markup()?, s.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponA1), Some(s), Some(u))	=> Some(format!("- Weapon A1: {} {}, {}", s.to_markup()?, self.id.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponA2), Some(s), Some(u))	=> Some(format!("- Weapon A2: {} {}, {}", s.to_markup()?, self.id.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponB1), Some(s), Some(u))	=> Some(format!("- Weapon B1: {} {}, {}", s.to_markup()?, self.id.to_markup()?, u.to_markup()?)),
+			(Some(Slot::WeaponB2), Some(s), Some(u))	=> Some(format!("- Weapon B2: {} {}, {}", s.to_markup()?, self.id.to_markup()?, u.to_markup()?)),
 
 			(Some(Slot::Relic), _, _)		=> Some(format!("- Relic: {}", self.id.to_markup()?)),
 
@@ -201,16 +229,21 @@ impl Aw2Markup for Equip {
 			(Some(Slot::WeaponAquaticA),_,_) => None,
 			(Some(Slot::WeaponAquaticB),_,_) => None,
             
-            // non-statted gear (ie, Ascended)
+            // fixed stat gear (named ascended, like Zojja's, etc)
 			(Some(Slot::WeaponA1), _, Some(u))	=> Some(format!("- Weapon A1: {}, {}", self.id.to_markup()?, u.to_markup()?)),
 			(Some(Slot::WeaponA2), _, Some(u))	=> Some(format!("- Weapon A2: {}, {}", self.id.to_markup()?, u.to_markup()?)),
 			(Some(Slot::WeaponB1), _, Some(u))	=> Some(format!("- Weapon B1: {}, {}", self.id.to_markup()?, u.to_markup()?)),
 			(Some(Slot::WeaponB2), _, Some(u))	=> Some(format!("- Weapon B2: {}, {}", self.id.to_markup()?, u.to_markup()?)),
 
-			(Some(slot), _, Some(u))		=> Some(format!("- UnknownStat {:?}, {}", slot, u.to_markup()?)),
+            // TODO: non-legendary selectable stat
+			(Some(Slot::WeaponA1), _, _)	    => Some(format!("- Weapon A1: {} DBG:{:?}", self.id.to_markup()?, self)),
 
-            // degenerate case
-			(Some(slot),_,_)				=> Some(format!("- Unknown {:?}", slot)),
+			(Some(Slot::Boots), _, _)		=> Some(format!("- ??? Boots, {:?}, DBG:{:?}", self.id.to_markup()?, self)),
+			(Some(Slot::Gloves), _, _)		=> Some(format!("- ??? Gloves, {:?}, DBG:{:?}", self.id.to_markup()?, self)),
+
+            // degenerate cases
+			(Some(slot), _, Some(u))		=> Some(format!("- UnknownStat {:?}, {} DBG:{:?}", slot, u.to_markup()?, self)),
+			(Some(slot), _, _)				=> Some(format!("- Unknown {:?} DBG:{:?}", slot, self)),
 
 			// (None,_,_) => None,
 			(None,_,_) => Some(format!("? MYSTERY: {:?}", self)),	// <-- replace None(,_,_) line above to expose api wierdness instead of silent ignore
